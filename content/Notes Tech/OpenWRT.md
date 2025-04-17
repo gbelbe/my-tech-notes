@@ -1,18 +1,11 @@
-**
 
 Vérifier que votre routeur est compatible et mettez à jour le firmware.
 
   
-
 fonctionnement au démarrage: 
-
-  
 
 1. une fois le logiciel flashé, le routeur n’active pas le wifi pour des raisons de sécu, il faut donc se connecter avec un cable Ethernet et taper l’adresse 192.168.1.1 pour entrer dans l’admin puis activer le wifi.
     
-
-  
-  
 
 2. paramétrage par SSH
     
@@ -25,50 +18,36 @@ Openwrt est une distribution linux préparée pour des routeurs avec ressources 
 
 installations de softs:
 
-  
+`opkg update
 
-installer des softs:
-
-  
-
-opkg update
-
-opkg install xxxx
-
-  
-  
-
+`opkg install xxxx`
+`
 La mémoire des routeurs est limitée et il peut être utile d’en rajouter pour pouvoir installer d’autres logiciels (impossible d’installer tailscale ou adguard home sur le mien sans ajouter de la mémoire)
 
-  
 
 add memory to the router:
 
-  
+add disk management packages   
+`
+`opkg update`
 
-add disk management packages 
-
-  
-
-opkg update
-
-opkg install block-mount kmod-fs-ext4 e2fsprogs parted kmod-usb-storage
-
+`opkg install block-mount kmod-fs-ext4 e2fsprogs parted kmod-usb-storage`
+`
 Create a partition table
 
-DISK="/dev/sda"
+`DISK="/dev/sda"`
 
 ### Create a GPT partition table
 
-parted -s ${DISK} -- mklabel gpt
+`parted -s ${DISK} -- mklabel gpt`
 
 ### Create a 7,5 GB partition for extroot
 
-parted -s ${DISK} -- mkpart primary ext4 1MiB 7500MiB
+`parted -s ${DISK} -- mkpart primary ext4 1MiB 7500MiB`
 
 ### Format the partition as ext4 for extroot
 
-mkfs.ext4 -L extroot ${DISK}1
+`mkfs.ext4 -L extroot ${DISK}1`
 
 Ensuite on prépare la partition pour qu’elle soit montée au démarrage sur le routeur:
 
