@@ -1,169 +1,111 @@
 
-Vérifier que votre routeur est compatible et mettez à jour le firmware.
+- Vérifier que votre routeur est compatible et mettez à jour le firmware.
 
-  
 fonctionnement au démarrage: 
 
-1. une fois le logiciel flashé, le routeur n’active pas le wifi pour des raisons de sécu, il faut donc se connecter avec un cable Ethernet et taper l’adresse 192.168.1.1 pour entrer dans l’admin puis activer le wifi.
-    
-
-2. paramétrage par SSH
-    
-
-  
+une fois le logiciel flashé, le routeur n’active pas le wifi pour des raisons de sécu, il faut donc se connecter avec un cable Ethernet et taper l’adresse 192.168.1.1 pour entrer dans l’admin puis activer le wifi.
 
 Openwrt est une distribution linux préparée pour des routeurs avec ressources limitées
-
-  
+Le paramétrage se fait par SSH ou avec l'interface graphique "Luci"
 
 installations de softs:
 
 `opkg update
-
 `opkg install xxxx`
-`
+
 La mémoire des routeurs est limitée et il peut être utile d’en rajouter pour pouvoir installer d’autres logiciels (impossible d’installer tailscale ou adguard home sur le mien sans ajouter de la mémoire)
 
-
-add memory to the router:
-
-add disk management packages   
+- add memory and disk management to the router: 
 `
 `opkg update`
 
 `opkg install block-mount kmod-fs-ext4 e2fsprogs parted kmod-usb-storage`
 `
-Create a partition table
+- Create a partition table
 
 `DISK="/dev/sda"`
 
-### Create a GPT partition table
+- Create a GPT partition table
 
 `parted -s ${DISK} -- mklabel gpt`
 
-### Create a 7,5 GB partition for extroot
+- Create a 7,5 GB partition for extroot
 
 `parted -s ${DISK} -- mkpart primary ext4 1MiB 7500MiB`
 
-### Format the partition as ext4 for extroot
+- Format the partition as ext4 for extroot
 
 `mkfs.ext4 -L extroot ${DISK}1`
 
-Ensuite on prépare la partition pour qu’elle soit montée au démarrage sur le routeur:
+- Ensuite on prépare la partition pour qu’elle soit montée au démarrage sur le routeur:
 
-1. # Variables
-    
-2. EXTROOT_DEVICE="/dev/sda1"
-    
-3. MOUNT_POINT="/mnt/extroot"
-    
-4. # Step 1: Unmount the extroot partition if mounted
-    
-5. umount ${EXTROOT_DEVICE} 2>/dev/null
-    
-6. # Step 2: Create the mount point
-    
-7. mkdir -p ${MOUNT_POINT}
-    
-8. # Step 3: Mount the extroot partition
-    
-9. mount ${EXTROOT_DEVICE} ${MOUNT_POINT}
-    
-10. if [ $? -ne 0 ]; then
-    
-11.     echo "Error: Failed to mount ${EXTROOT_DEVICE}. Exiting..."
-    
-12.     exit 1
-    
-13. fi
-    
-14. # Step 4: Copy current root filesystem to extroot partition
-    
-15. echo "Copying current root filesystem to extroot partition..."
-    
-16. tar -C /overlay -cvf - . | tar -C ${MOUNT_POINT} -xf -
-    
-17. if [ $? -ne 0 ]; then
-    
-18.     echo "Error: Failed to copy root filesystem. Exiting..."
-    
-19.     umount ${MOUNT_POINT}
-    
-20.     exit 1
-    
-21. fi
-    
-22. # Step 5: Configure extroot in /etc/config/fstab
-    
-23. echo "Configuring extroot in /etc/config/fstab..."
-    
-24. uci -q delete fstab.overlay
-    
-25. uci set fstab.overlay="mount"
-    
-26. uci set fstab.overlay.device="${EXTROOT_DEVICE}"
-    
-27. uci set fstab.overlay.target="/overlay"
-    
-28. uci commit fstab
-    
-29. # Step 6: Update fstab for automatic mounting
-    
-30. cat << EOF >> /etc/config/fstab
-    
-31. config 'mount'
-    
-32.     option target '/overlay'
-    
-33.     option device '${EXTROOT_DEVICE}'
-    
-34.     option fstype 'ext4'
-    
-35.     option options 'rw,sync'
-    
-36.     option enabled '1'
-    
-37.     option enabled_fsck '1'
-    
-38. EOF
-    
-39. # Step 7: Enable and start the fstab service
-    
-40. /etc/init.d/fstab enable
-    
-41. /etc/init.d/fstab start
-    
-42. # Step 8: Unmount the extroot partition and reboot
-    
-43. echo "Unmounting extroot partition and rebooting..."
-    
-44. umount ${MOUNT_POINT}
-    
-45. echo "Rebooting the system in 5 seconds..."
-    
-46. sleep 5
-    
-47. reboot
+`# Variables`
+`EXTROOT_DEVICE="/dev/sda1"`
+`MOUNT_POINT="/mnt/extroot"`
+
+`# Step 1: Unmount the extroot partition if mounted`
+`umount ${EXTROOT_DEVICE} 2>/dev/null`
+
+`# Step 2: Create the mount point`
+`mkdir -p ${MOUNT_POINT}`
+
+`# Step 3: Mount the extroot partition`
+`mount ${EXTROOT_DEVICE} ${MOUNT_POINT}`
+`if [ $? -ne 0 ]; then`
+    `echo "Error: Failed to mount ${EXTROOT_DEVICE}. Exiting..."`    
+ `exit 1`
+`fi`
+
+`# Step 4: Copy current root filesystem to extroot partition`
+`echo "Copying current root filesystem to extroot partition..."`    
+`tar -C /overlay -cvf - . | tar -C ${MOUNT_POINT} -xf -`
+`if [ $? -ne 0 ]; then`    
+    `echo "Error: Failed to copy root filesystem. Exiting..."`
+    `umount ${MOUNT_POINT}`
+`exit 1`
+`fi`
+
+`# Step 5: Configure extroot in /etc/config/fstab`
+`echo "Configuring extroot in /etc/config/fstab..."`
+`uci -q delete fstab.overlay`
+`uci set fstab.overlay="mount"`
+`uci set fstab.overlay.device="${EXTROOT_DEVICE}"`
+`uci set fstab.overlay.target="/overlay"`
+`uci commit fstab`
+
+`# Step 6: Update fstab for automatic mounting`
+`cat << EOF >> /etc/config/fstab`
+`config 'mount'`
+`option target '/overlay'`
+`option device '${EXTROOT_DEVICE}'`
+`option fstype 'ext4'`
+`option options 'rw,sync'`
+`option enabled '1'`
+`option enabled_fsck '1'`
+`EOF`
+
+`# Step 7: Enable and start the fstab service`
+`/etc/init.d/fstab enable`
+`/etc/init.d/fstab start`
+
+`# Step 8: Unmount the extroot partition and reboot`
+`echo "Unmounting extroot partition and rebooting..."`
+`umount ${MOUNT_POINT}`
+`echo "Rebooting the system in 5 seconds..."`
+`sleep 5`
+`reboot`
     
 
   
-
-  
-
-
-
-## peut on augmenter la ram?
+## peut on également augmenter la ram?
     
 
-  
 
 On peut installer le package qui optimise l’usage de la RAM zram-swap
 
-opkg update
+`opkg update
+`opkg install zram-swap`
 
-opkg install zram-swap
-
-  
   
 
 - [Parer aux pertes de connection](https://docs.google.com/document/d/1FOOG4MD-A9jeWVDq9sq60PTSC1il8mkU_1wvndGSgks/edit?tab=t.ckrv6u7mawp5) lors de changement d’adresse de l’ISP (reseau mobile ou autre par ex)

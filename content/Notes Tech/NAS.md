@@ -1,33 +1,20 @@
-**  
-  
-  
-  
 
 1. Partage d’un dossier sur le réseau:
     
 
-  
-
 [https://www.youtube.com/watch?v=4d7ib4lEDJ4](https://www.youtube.com/watch?v=4d7ib4lEDJ4)
 
-  
+
 
 - Aller à la page principale du NAS:  
     
 - Clicker sur “panneau de contrôle” puis “service de fichiers” puis clicker sur “activer le service SMB”
     
 
-  
-  
-  
-  
-  
 
 Activer le partage NFS sur 
 
 panneau de configuration → partage de fichiers → NFS (activer le service nfs)
-
-  
 
 [https://www.reddit.com/r/synology/comments/ivxzl0/an_adventure_in_macos_and_nfs_questions/](https://www.reddit.com/r/synology/comments/ivxzl0/an_adventure_in_macos_and_nfs_questions/)
 
