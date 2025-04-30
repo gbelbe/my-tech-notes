@@ -103,7 +103,7 @@ La mémoire des routeurs est limitée et il peut être utile d’en rajouter pou
 
 On peut installer le package qui optimise l’usage de la RAM zram-swap
 
-`opkg update
+`opkg update`
 `opkg install zram-swap`
 
   
@@ -113,11 +113,9 @@ On peut installer le package qui optimise l’usage de la RAM zram-swap
 
   
   
-## Déconnections:
+### note : déconnections:
 
-  **
-
-# [OpenWRT, ISP modem and dynamic IP addresses: how to fix connectivity issues without rebooting your router every time](https://ounapuu.ee/posts/2024/05/20/openwrt-connectivity-fix/)
+[OpenWRT, ISP modem and dynamic IP addresses: how to fix connectivity issues without rebooting your router every time](https://ounapuu.ee/posts/2024/05/20/openwrt-connectivity-fix/)
 
 2024-05-20
 
@@ -141,7 +139,7 @@ To automate this workaround, I created a single crontab entry in the OpenWRT box
 
 The crontab entry looks like this:
 
-*/5 * * * * /bin/ash -c '/bin/ping -c 3 8.8.8.8 > /dev/null || /sbin/ifup wan'
+`*/5 * * * * /bin/ash -c '/bin/ping -c 3 8.8.8.8 > /dev/null || /sbin/ifup wan'`
 
 Every 5 minutes, the router pings Google’s DNS server. If that command succeeds, then the internet connection works and that’s it. If the ping fails, then the other half of the shell command is executed, which brings up the wan interface on my router.
 
@@ -149,11 +147,6 @@ Feel free to use a different IP address to test with. Your WAN network interface
 
 The downside of this solution is that if the server you’re using to verify your internet connection is down or refuses pings, then you’ll be causing interruptions in your home network every 5 minutes.
 
-Talking to the ISP about this issue was something I considered as well. Then I remembered that it took me 1.5 months of fighting chatbots and repeating the same information to different customer care agents to use my own modem that’s identical to the one the ISP uses. That’s a hell no from me.
 
 ---
 
-  
-
-  
-**
